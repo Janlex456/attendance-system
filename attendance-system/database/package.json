@@ -1,0 +1,17 @@
+{
+  "name": "attendance-db-setup",
+  "version": "1.0.0",
+  "description": "Database setup for attendance system",
+  "main": "setup.js",
+  "scripts": {
+    "start": "node setup.js",
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.11.0",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": ["mysql", "setup", "database"],
+  "author": "",
+  "license": "ISC"
+}
