@@ -1,12 +1,16 @@
 const mysql = require('mysql2/promise');
 const fs = require('fs').promises;
 const path = require('path');
+const dotenv = require('dotenv');
+
+// Load environment variables from .env file for local development
+dotenv.config({ path: './.env' });
 
 async function setupComplete() {
   const config = {
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '', // Use an empty string as default for local if not set
     multipleStatements: true
   };
 
@@ -16,7 +20,8 @@ async function setupComplete() {
     connection = await mysql.createConnection({...config, multipleStatements: true});
 
     // Create/use database
-    await connection.execute('CREATE DATABASE IF NOT EXISTS `attendance_system`');
+    const dbName = process.env.DB_NAME || 'attendance_system';
+    await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
     console.log('✅ Database ready');
     await connection.execute('USE `attendance_system`');
 

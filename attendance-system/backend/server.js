@@ -1,45 +1,29 @@
 const express = require('express');
-const cors = require('cors');
 const dotenv = require('dotenv');
-const { pool, testConnection } = require('./database');
+const db = require('./config/db'); // Import the database pool
 
-dotenv.config();
+// Load environment variables from .env file for local development
+dotenv.config({ path: '../.env' }); // Adjust path as necessary based on your project structure
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// Middleware to parse JSON bodies
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Requires first for middleware
-const { auth, roleAuth } = require('./middleware/auth');
-const authRouter = require('./routes/auth');
-const subjectsRouter = require('./routes/subjects');
-const qrRouter = require('./routes/qr');
-const attendanceRouter = require('./routes/attendance');
-const reportsRouter = require('./routes/reports');
-
-// Basic route
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Attendance Backend Running' });
+// Basic route to test database connection
+app.get('/test-db', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT 1 + 1 AS solution');
+    res.status(200).json({ message: 'Database connected successfully!', solution: rows[0].solution });
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({ message: 'Database connection failed', error: error.message });
+  }
 });
 
-// Routes
-app.use('/api/auth', authRouter);
-app.use('/api/subjects', auth, subjectsRouter);
-app.use('/api/qr', auth, qrRouter);
-app.use('/api/attendance', auth, attendanceRouter);
-app.use('/api/reports', auth, reportsRouter);
-
-
-
-
-// TODO: Auth middleware, QR endpoints, attendance logic
+// Define the port to listen on, using process.env.PORT for Railway
+const PORT = process.env.PORT || 5000; // Default to 5000 for local development
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  testConnection();
+  console.log(`Server running on port ${PORT}`);
 });
-
